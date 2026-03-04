@@ -1,0 +1,16 @@
+{% import '_includes/forms' as forms %}
+{% import 'elasticsearch/_macros' as macros %}
+
+{{ forms.autosuggestField({
+    label: 'API Key'|t('elasticsearch'),
+    id: 'apiKey',
+    name: 'apiKey',
+    suggestEnvVars: true,
+    suggestAliases: true,
+    value: settings.apiKey,
+    errors: settings.getErrors('apiKey'),
+    required: true,
+    disabled: macros.configDisable('apiKey'),
+    warning: macros.configWarning('apiKey')
+}) }}
+

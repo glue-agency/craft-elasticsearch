@@ -1,0 +1,25 @@
+.es-pill {
+    background-color: transparent;
+    border-radius: 9999px;
+    padding: 5px 12px;
+}
+
+.es-pill.es-pill-info {
+    background-color: rgb(239, 250, 253);
+    color: rgb(63, 117, 161);
+}
+
+.es-pill.es-pill-success {
+    background-color: rgb(240, 250, 242);
+    color: rgb(56, 105, 83);
+}
+
+.es-pill.es-pill-warning {
+    background-color: rgb(255, 249, 234);
+    color: rgb(187, 142, 40);
+}
+
+.es-pill.es-pill-error {
+    background-color: rgb(253, 242, 244);
+    color: rgb(204, 27, 57);
+}

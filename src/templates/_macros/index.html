@@ -1,0 +1,19 @@
+{% macro configDisable(setting) -%}
+    {% set configArray = craft.app.config.getConfigFromFile('elasticsearch') %}
+
+    {%- if configArray[setting] is defined and configArray[setting] is not empty -%}
+        {{ true }}
+    {%- else -%}
+        {{ false }}
+    {%- endif -%}
+{%- endmacro %}
+
+{% macro configWarning(setting) -%}
+    {% set configArray = craft.app.config.getConfigFromFile('elasticsearch') %}
+
+    {%- if configArray[setting] is defined and configArray[setting] is not empty -%}
+        {{ "This is being overridden by the `#{setting}` setting in the `config/elasticsearch.php` file."|raw }}
+    {%- else -%}
+        {{ false }}
+    {%- endif -%}
+{%- endmacro %}

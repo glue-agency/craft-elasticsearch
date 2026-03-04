@@ -1,0 +1,15 @@
+{% import '_includes/forms' as forms %}
+{% import 'elasticsearch/_macros' as macros %}
+
+{{ forms.autosuggestField({
+    label: 'Cloud Id'|t('elasticsearch'),
+    id: 'cloudId',
+    name: 'cloudId',
+    suggestEnvVars: true,
+    suggestAliases: true,
+    value: settings.cloudId,
+    errors: settings.getErrors('cloudId'),
+    required: true,
+    disabled: macros.configDisable('cloudId'),
+    warning: macros.configWarning('cloudId')
+}) }}

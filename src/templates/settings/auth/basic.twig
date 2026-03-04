@@ -1,0 +1,29 @@
+{% import '_includes/forms' as forms %}
+{% import 'elasticsearch/_macros' as macros %}
+
+{{ forms.autosuggestField({
+    label: 'Username'|t('elasticsearch'),
+    id: 'username',
+    name: 'username',
+    suggestEnvVars: true,
+    suggestAliases: true,
+    value: settings.username,
+    placeholder: 'elastic',
+    errors: settings.getErrors('username'),
+    required: true,
+    disabled: macros.configDisable('username'),
+    warning: macros.configWarning('username')
+}) }}
+
+{{ forms.autosuggestField({
+    label: 'Password'|t('elasticsearch'),
+    id: 'password',
+    name: 'password',
+    suggestEnvVars: true,
+    suggestAliases: true,
+    value: settings.password,
+    errors: settings.getErrors('password'),
+    required: true,
+    disabled: macros.configDisable('password'),
+    warning: macros.configWarning('password')
+}) }}

@@ -1,0 +1,99 @@
+{% import '_includes/forms' as forms %}
+
+<h1>{{ 'indexes'|t('elasticsearch') }}</h1>
+
+<table class="data fullwidth">
+    <thead>
+        <tr>
+            <th>{{ 'Index name'|t('elasticsearch') }}</th>
+            <th>{{ 'Status'|t('elasticsearch') }}</th>
+            <th>{{ 'Craft Elements'|t('elasticsearch') }}</th>
+            <th>{{ 'Documents in index'|t('elasticsearch') }}</th>
+            <th>{{ 'Actions'|t('elasticsearch') }}</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for index in indexes %}
+            {% set elementCount = craft.elasticsearch.elementCount(index) %}
+            {% set indexExists = craft.elasticsearch.indexExists(index) %}
+            {% set elasticCount = indexExists ? craft.elasticsearch.indexCount(index) : 0 %}
+            <tr>
+                <th>{{ index.name }}</th>
+                <td>
+                    {% if not indexExists %}
+                        <span class="es-pill es-pill-error">{{ 'missing'|t('elasticsearch') }}</span>
+                    {% elseif elasticCount == 0 %}
+                        <span class="es-pill es-pill-error">{{ 'empty'|t('elasticsearch') }}</span>
+                    {% elseif elasticCount == elementCount %}
+                        <span class="es-pill es-pill-success">{{ 'in sync'|t('elasticsearch') }}</span>
+                    {% else %}
+                        <span class="es-pill es-pill-error">{{ 'out of sync'|t('elasticsearch') }}</span>
+                    {% endif %}
+                </td>
+                <td>{{ elementCount }}</td>
+                <td>{{ elasticCount }}</td>
+                <td>
+                    <div style="display: flex; gap: 6px">
+                        {% if not indexExists %}
+                            <form method="post" accept-charset="UTF-8">
+                                {{ actionInput('elasticsearch/utilities/create') }}
+                                {{ hiddenInput('index', index.name) }}
+                                {{ csrfInput() }}
+
+                                {{ forms.button({
+                                    label: 'Create'|t('elasticsearch'),
+                                    type: 'submit',
+                                    class: 'submit'
+                                }) }}
+                            </form>
+                        {% else %}
+                            <form method="post" accept-charset="UTF-8">
+                                {{ actionInput('elasticsearch/utilities/index') }}
+                                {{ hiddenInput('index', index.name) }}
+                                {{ csrfInput() }}
+
+                                {{ forms.button({
+                                    label: 'Index'|t('elasticsearch'),
+                                    type: 'submit',
+                                    class: 'submit'
+                                }) }}
+                            </form>
+                            <form method="post" accept-charset="UTF-8">
+                                {{ actionInput('elasticsearch/utilities/update-mapping') }}
+                                {{ hiddenInput('index', index.name) }}
+                                {{ csrfInput() }}
+
+                                {{ forms.button({
+                                    label: 'Update Mapping'|t('elasticsearch'),
+                                    type: 'submit',
+                                }) }}
+                            </form>
+                            <form method="post" accept-charset="UTF-8">
+                                {{ actionInput('elasticsearch/utilities/flush') }}
+                                {{ hiddenInput('index', index.name) }}
+                                {{ csrfInput() }}
+
+                                {{ forms.button({
+                                    label: 'Flush'|t('elasticsearch'),
+                                    type: 'submit',
+                                    class: 'caution'
+                                }) }}
+                            </form>
+                            <form method="post" accept-charset="UTF-8">
+                                {{ actionInput('elasticsearch/utilities/delete') }}
+                                {{ hiddenInput('index', index.name) }}
+                                {{ csrfInput() }}
+
+                                {{ forms.button({
+                                    label: 'Delete'|t('elasticsearch'),
+                                    type: 'submit',
+                                    class: 'caution'
+                                }) }}
+                            </form>
+                        {% endif %}
+                    </div>
+                </td>
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>

@@ -1,0 +1,94 @@
+{% import '_includes/forms' as forms %}
+{% import 'elasticsearch/_macros' as macros %}
+
+<h2>{{ 'Connection'|t('elasticsearch') }}</h2>
+
+{{ forms.autosuggestField({
+    label: 'Endpoint'|t('elasticsearch'),
+    instructions: 'The Elastic endpoint url.'|t('elasticsearch'),
+    id: 'endpoint',
+    name: 'endpoint',
+    suggestEnvVars: true,
+    suggestAliases: true,
+    value: settings.endpoint,
+    errors: settings.getErrors('endpoint'),
+    required: true,
+    disabled: macros.configDisable('endpoint'),
+    warning: macros.configWarning('endpoint')
+}) }}
+
+{{ forms.autosuggestField({
+    label: 'Port'|t('elasticsearch'),
+    id: 'port',
+    name: 'port',
+    suggestEnvVars: true,
+    suggestAliases: true,
+    value: settings.port,
+    placeholder: '9200',
+    errors: settings.getErrors('port'),
+    disabled: macros.configDisable('port'),
+    warning: macros.configWarning('port')
+}) }}
+
+<h2>{{ 'Authentication'|t('elasticsearch') }}</h2>
+
+{{ forms.selectField({
+    label: 'Type'|t('elasticsearch'),
+    id: 'auth',
+    name: 'auth',
+    options: [
+        {
+            label: 'Basic'|t('elasticsearch'),
+            value: 'basic'
+        },
+        {
+            label: 'Cloud Id'|t('elasticsearch'),
+            value: 'cloudId'
+        },
+        {
+            label: 'API Key'|t('elasticsearch'),
+            value: 'apiKey'
+        }
+    ],
+    value: settings.auth,
+    errors: settings.getErrors('auth'),
+    required: true,
+    warning: macros.configWarning('auth')
+}) }}
+
+<div id="elasticsearch-auth-type">
+    {% include "elasticsearch/settings/auth/#{settings.auth}" %}
+</div>
+
+<h2>{{ 'Search'|t('elasticsearch') }}</h2>
+
+{{ forms.autosuggestField({
+    label: 'Search Key'|t('elasticsearch'),
+    id: 'searchKey',
+    name: 'searchKey',
+    suggestEnvVars: true,
+    suggestAliases: true,
+    value: settings.searchKey,
+    errors: settings.getErrors('searchKey'),
+    required: true,
+    disabled: macros.configDisable('searchKey'),
+    warning: macros.configWarning('searchKey')
+}) }}
+
+<hr />
+
+<h2>{{ 'Indexes'|t('elasticsearch') }}</h2>
+<p>
+    <b>{{ "Elasticsearch's index settings can only be set using the `elasticsearch.php` config file."|t('elasticsearch') }}</b>
+</p>
+<p class="mb-0">
+    {{ "There are currently {count} indexes configured:"|t('elasticsearch', {
+        count: settings.indexes|length,
+    }) }}
+    <ul>
+        {% for index in settings.indexes %}
+            <li>{{ index.name }}</li>
+        {% endfor %}
+    </ul>
+</ul>
+</p>
