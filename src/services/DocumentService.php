@@ -69,7 +69,7 @@ class DocumentService extends Component
             ->index([
                 'index' => $index->name,
                 'id'    => $element->id,
-                'body'  => $this->formatData($element),
+                'body'  => $this->formatData($element, $index),
             ])
             ->asBool();
     }
@@ -85,7 +85,7 @@ class DocumentService extends Component
                     '_id' => $element->id,
                 ]
             ];
-            $data[] = $this->formatData($element);
+            $data[] = $this->formatData($element, $index);
         }
 
         $response = $this->client->bulk([
@@ -109,10 +109,10 @@ class DocumentService extends Component
         return $this->deleteById($index, $entry->id);
     }
 
-    protected function formatData(mixed $data): array
+    protected function formatData(mixed $data, Index $index): array
     {
         $factory = new ElementMappingFactory;
 
-        return $factory->format($data);
+        return $factory->format($data, $index);
     }
 }

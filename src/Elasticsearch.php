@@ -72,14 +72,12 @@ class Elasticsearch extends Plugin
         parent::init();
 
         $this->registerCraftVariable();
-
         $this->registerCpAsset();
+        $this->attachEventHandlers();
 
         // Defer most setup tasks until Craft is fully initialized
         Craft::$app->onInit(function() {
             $this->registerControllers();
-
-            $this->attachEventHandlers();
         });
     }
 

@@ -5,6 +5,7 @@ namespace GlueAgency\Elasticsearch\factories;
 use craft\base\Field;
 use GlueAgency\Elasticsearch\events\RegisterPropertyMappersEvent;
 use GlueAgency\Elasticsearch\mappers\properties\PropertyMapperInterface;
+use GlueAgency\Elasticsearch\models\Index;
 use GlueAgency\Elasticsearch\schemas\properties\BaseProperty;
 use GlueAgency\Elasticsearch\schemas\properties\TextProperty;
 use yii\base\Component;
@@ -40,14 +41,14 @@ class PropertyMappingFactory extends Component
         $this->mappings = $event->mappings;
     }
 
-    public function create(Field $field, string $handle): BaseProperty
+    public function create(Field $field, string $handle, Index $index): BaseProperty
     {
         foreach($this->mappings as $fieldClass => $mapperClass) {
             if(is_a($field, $fieldClass)) {
                 /** @var PropertyMapperInterface $mapper */
                 $mapper = new $mapperClass;
 
-                return $mapper->map($field, $handle);
+                return $mapper->map($field, $handle, $index);
             }
         }
 

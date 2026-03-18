@@ -66,7 +66,9 @@ class EntrySchema extends BaseSchema implements SchemaInterface
 
         foreach($entryTypes as $model) {
             foreach($model->getFieldLayout()->getCustomFields() as $field) {
-                $this->addField($field);
+                if ($index->shouldIndexField($field->handle)) {
+                    $this->addField($field, $index);
+                }
             }
         }
     }

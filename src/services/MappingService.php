@@ -22,7 +22,7 @@ class MappingService extends Component
     {
         $factory = new ElementSchemaFactory;
 
-        return $this->client->indexes()
+        return $this->client->indices()
             ->putMapping([
                 'index' => $index->name,
                 'body'  => $factory->build($index),

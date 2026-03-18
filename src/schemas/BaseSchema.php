@@ -50,10 +50,10 @@ abstract class BaseSchema
         $this->properties->push($property);
     }
 
-    public function addField(Field $field): void
+    public function addField(Field $field, Index $index): void
     {
         $this->addProperty(
-            $this->propertyFactory->create($field, FieldHelper::toElasticSafeName($field))
+            $this->propertyFactory->create($field, FieldHelper::toElasticSafeName($field), $index)
         );
     }
 }

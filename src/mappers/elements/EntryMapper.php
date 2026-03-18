@@ -5,11 +5,12 @@ namespace GlueAgency\Elasticsearch\mappers\elements;
 use craft\base\Element;
 use GlueAgency\Elasticsearch\factories\FieldMappingFactory;
 use GlueAgency\Elasticsearch\helpers\FieldHelper;
+use GlueAgency\Elasticsearch\models\Index;
 
 class EntryMapper implements ElementMapperInterface
 {
 
-    public function format(Element $element): array
+    public function format(Element $element, Index $index): array
     {
         $data = [
             'title'        => $element->title,
@@ -36,9 +37,11 @@ class EntryMapper implements ElementMapperInterface
 
         $fieldMappingFactory = new FieldMappingFactory;
         foreach($element->getFieldLayout()->getCustomFields() as $field) {
-            $handle = FieldHelper::toElasticSafeName($field);
+            if ($index->shouldIndexField($field->handle)) {
+                $handle = FieldHelper::toElasticSafeName($field);
 
-            $data[$handle] = $fieldMappingFactory->format($element, $field);
+                $data[$handle] = $fieldMappingFactory->format($element, $field, $index);
+            }
         }
 
         return $data;

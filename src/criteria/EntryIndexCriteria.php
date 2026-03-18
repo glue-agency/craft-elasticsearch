@@ -8,12 +8,25 @@ use craft\elements\Entry;
 class EntryIndexCriteria implements ElementIndexCriteriaInterface
 {
 
+    /**
+     * @var Entry $element
+     */
     public static function getCriteria(Element $element): array
     {
-        /** @var Entry $element */
+        $sections = [];
+        $entryTypes = [];
+
+        if($element->section) {
+            $sections[] = $element->section->handle;
+        }
+
+        if($element->type) {
+            $entryTypes[] = $element->type->handle;
+        }
+
         return [
-            'sections'   => [$element->section->handle],
-            'entryTypes' => [$element->type->handle],
+            'sections'   => $sections,
+            'entryTypes' => $entryTypes,
         ];
     }
 }
