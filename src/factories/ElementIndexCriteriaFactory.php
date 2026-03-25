@@ -33,9 +33,9 @@ class ElementIndexCriteriaFactory extends Component
     public function build(Element $element): array
     {
         $criteria = [
-            'site'        => $element->site->handle,
-            'elementType' => get_class($element),
-            'settings'    => [],
+            'site'     => $element->site->handle,
+            'element'  => get_class($element),
+            'settings' => [],
         ];
 
         foreach($this->builders as $elementClass => $builderClass) {

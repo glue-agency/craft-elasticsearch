@@ -1,5 +1,10 @@
 # Release Notes for ElasticSearch
 
+## 5.0.0-beta.3
+
+### Fixed
+- Fixed an issue where the plugin would match the wrong index because of a typo in the `ElementIndexCriteriaFactory` `element` property.
+
 ## 5.0.0-beta.2
 
 ### Added
@@ -11,5 +16,4 @@
 - Fixed an exception where Matrix blocks and other headless elements threw an error during indexing due to missing `section` properties.
 
 ## 5.0.0-beta.1
-
 - Initial release
