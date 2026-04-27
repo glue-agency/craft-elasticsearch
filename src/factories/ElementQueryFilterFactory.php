@@ -2,6 +2,7 @@
 
 namespace GlueAgency\Elasticsearch\factories;
 
+use craft\base\Element;
 use craft\elements\db\ElementQueryInterface;
 use GlueAgency\Elasticsearch\events\RegisterElementQueryFiltersEvent;
 use GlueAgency\Elasticsearch\models\Index;
@@ -31,9 +32,6 @@ class ElementQueryFilterFactory extends Component
         $this->filters = $event->filters;
     }
 
-    /**
-     * Apply the appropriate query filters for the given Index's element type.
-     */
     public function apply(ElementQueryInterface $query, Index $index): void
     {
         $element = $index->element;
@@ -42,5 +40,16 @@ class ElementQueryFilterFactory extends Component
             $filterClass = $this->filters[$element];
             $filterClass::apply($query, $index);
         }
+    }
+
+    public function shouldIndex(Element $element, Index $index): bool
+    {
+        $elementClass = get_class($element);
+
+        if(isset($this->filters[$elementClass])) {
+            return $this->filters[$elementClass]::shouldIndex($element, $index);
+        }
+
+        return true;
     }
 }

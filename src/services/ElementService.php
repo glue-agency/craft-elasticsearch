@@ -26,4 +26,22 @@ class ElementService extends Component
     {
         return $this->query($index)->count();
     }
+
+    public function ids(Index $index): array
+    {
+        return array_map('intval', $this->query($index)->ids());
+    }
+
+    public function expiredIds(Index $index): array
+    {
+        $query = $index->element::find()
+            ->site($index->site);
+
+        $factory = new ElementQueryFilterFactory;
+        $factory->apply($query, $index);
+
+        $query->status('expired');
+
+        return array_map('intval', $query->ids());
+    }
 }

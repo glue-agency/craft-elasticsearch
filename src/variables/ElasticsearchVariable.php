@@ -27,4 +27,29 @@ class ElasticsearchVariable
     {
         return Elasticsearch::getInstance()->documents->count($index);
     }
+
+    public function craftOnlyIds(Index $index): array
+    {
+        $craftIds   = Elasticsearch::getInstance()->elements->ids($index);
+        $elasticIds = Elasticsearch::getInstance()->documents->allIds($index);
+
+        return array_values(array_diff($craftIds, $elasticIds));
+    }
+
+    public function elasticOnlyIds(Index $index): array
+    {
+        $craftIds   = Elasticsearch::getInstance()->elements->ids($index);
+        $elasticIds = Elasticsearch::getInstance()->documents->allIds($index);
+        $expiredIds = Elasticsearch::getInstance()->elements->expiredIds($index);
+
+        return array_values(array_diff($elasticIds, $craftIds, $expiredIds));
+    }
+
+    public function elasticExpiredIds(Index $index): array
+    {
+        $elasticIds = Elasticsearch::getInstance()->documents->allIds($index);
+        $expiredIds = Elasticsearch::getInstance()->elements->expiredIds($index);
+
+        return array_values(array_intersect($elasticIds, $expiredIds));
+    }
 }

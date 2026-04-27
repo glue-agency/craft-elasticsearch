@@ -1,99 +1,156 @@
 {% import '_includes/forms' as forms %}
 
-<h1>{{ 'indexes'|t('elasticsearch') }}</h1>
+<h1>{{ 'Indexes'|t('elasticsearch') }}</h1>
 
-<table class="data fullwidth">
+<table class="data fullwidth collapsible">
     <thead>
         <tr>
-            <th>{{ 'Index name'|t('elasticsearch') }}</th>
+            <th>{{ 'Index'|t('elasticsearch') }}</th>
             <th>{{ 'Status'|t('elasticsearch') }}</th>
-            <th>{{ 'Craft Elements'|t('elasticsearch') }}</th>
-            <th>{{ 'Documents in index'|t('elasticsearch') }}</th>
-            <th>{{ 'Actions'|t('elasticsearch') }}</th>
+            <th class="thin nowrap">{{ 'Craft elements'|t('elasticsearch') }}</th>
+            <th class="thin nowrap">{{ 'Elastic documents'|t('elasticsearch') }}</th>
+            <th class="thin nowrap">{{ 'Actions'|t('elasticsearch') }}</th>
         </tr>
     </thead>
     <tbody>
         {% for index in indexes %}
-            {% set elementCount = craft.elasticsearch.elementCount(index) %}
-            {% set indexExists = craft.elasticsearch.indexExists(index) %}
-            {% set elasticCount = indexExists ? craft.elasticsearch.indexCount(index) : 0 %}
-            <tr>
-                <th>{{ index.name }}</th>
-                <td>
+            {% set elementCount      = craft.elasticsearch.elementCount(index) %}
+            {% set indexExists       = craft.elasticsearch.indexExists(index) %}
+            {% set elasticCount      = indexExists ? craft.elasticsearch.indexCount(index) : 0 %}
+            {% set craftOnlyIds      = indexExists ? craft.elasticsearch.craftOnlyIds(index) : [] %}
+            {% set elasticOnlyIds    = indexExists ? craft.elasticsearch.elasticOnlyIds(index) : [] %}
+            {% set elasticExpiredIds = indexExists ? craft.elasticsearch.elasticExpiredIds(index) : [] %}
+            {% set isOutOfSync       = indexExists and elasticCount != elementCount %}
+            {% set diffCount         = craftOnlyIds|length + elasticOnlyIds|length + elasticExpiredIds|length %}
+            {% set hasDiff           = diffCount > 0 %}
+
+            <tr class="{{ hasDiff ? 'es-row-has-diff' : '' }}">
+                <th>
+                    <code class="es-index-name">{{ index.name }}</code>
+                    <div class="es-index-meta light">
+                        {{ index.site }} · {{ index.element|split('\\')|last }}
+                    </div>
+                </th>
+                <td class="nowrap">
                     {% if not indexExists %}
-                        <span class="es-pill es-pill-error">{{ 'missing'|t('elasticsearch') }}</span>
+                        <span class="status off"></span>{{ 'Missing'|t('elasticsearch') }}
                     {% elseif elasticCount == 0 %}
-                        <span class="es-pill es-pill-error">{{ 'empty'|t('elasticsearch') }}</span>
-                    {% elseif elasticCount == elementCount %}
-                        <span class="es-pill es-pill-success">{{ 'in sync'|t('elasticsearch') }}</span>
+                        <span class="status off"></span>{{ 'Empty'|t('elasticsearch') }}
+                    {% elseif isOutOfSync %}
+                        <span class="status pending"></span>{{ 'Out of sync'|t('elasticsearch') }}
                     {% else %}
-                        <span class="es-pill es-pill-error">{{ 'out of sync'|t('elasticsearch') }}</span>
+                        <span class="status on"></span>{{ 'In sync'|t('elasticsearch') }}
                     {% endif %}
                 </td>
-                <td>{{ elementCount }}</td>
-                <td>{{ elasticCount }}</td>
-                <td>
-                    <div style="display: flex; gap: 6px">
+                <td class="thin nowrap">{{ elementCount }}</td>
+                <td class="thin nowrap">{{ elasticCount }}</td>
+                <td class="nowrap">
+                    <div class="flex flex-nowrap" style="gap: 6px">
                         {% if not indexExists %}
                             <form method="post" accept-charset="UTF-8">
                                 {{ actionInput('elasticsearch/utilities/create') }}
                                 {{ hiddenInput('index', index.name) }}
                                 {{ csrfInput() }}
-
-                                {{ forms.button({
-                                    label: 'Create'|t('elasticsearch'),
-                                    type: 'submit',
-                                    class: 'submit'
-                                }) }}
+                                {{ forms.button({ label: 'Create'|t('elasticsearch'), type: 'submit', class: 'submit' }) }}
                             </form>
                         {% else %}
                             <form method="post" accept-charset="UTF-8">
                                 {{ actionInput('elasticsearch/utilities/index') }}
                                 {{ hiddenInput('index', index.name) }}
                                 {{ csrfInput() }}
-
-                                {{ forms.button({
-                                    label: 'Index'|t('elasticsearch'),
-                                    type: 'submit',
-                                    class: 'submit'
-                                }) }}
+                                {{ forms.button({ label: 'Index'|t('elasticsearch'), type: 'submit', class: 'submit' }) }}
                             </form>
                             <form method="post" accept-charset="UTF-8">
                                 {{ actionInput('elasticsearch/utilities/update-mapping') }}
                                 {{ hiddenInput('index', index.name) }}
                                 {{ csrfInput() }}
-
-                                {{ forms.button({
-                                    label: 'Update Mapping'|t('elasticsearch'),
-                                    type: 'submit',
-                                }) }}
+                                {{ forms.button({ label: 'Update mapping'|t('elasticsearch'), type: 'submit' }) }}
                             </form>
                             <form method="post" accept-charset="UTF-8">
                                 {{ actionInput('elasticsearch/utilities/flush') }}
                                 {{ hiddenInput('index', index.name) }}
                                 {{ csrfInput() }}
-
-                                {{ forms.button({
-                                    label: 'Flush'|t('elasticsearch'),
-                                    type: 'submit',
-                                    class: 'caution'
-                                }) }}
+                                {{ forms.button({ label: 'Flush'|t('elasticsearch'), type: 'submit', class: 'caution' }) }}
                             </form>
                             <form method="post" accept-charset="UTF-8">
                                 {{ actionInput('elasticsearch/utilities/delete') }}
                                 {{ hiddenInput('index', index.name) }}
                                 {{ csrfInput() }}
-
-                                {{ forms.button({
-                                    label: 'Delete'|t('elasticsearch'),
-                                    type: 'submit',
-                                    class: 'caution'
-                                }) }}
+                                {{ forms.button({ label: 'Delete'|t('elasticsearch'), type: 'submit', class: 'caution' }) }}
                             </form>
                         {% endif %}
                     </div>
                 </td>
             </tr>
+
+            {% if hasDiff %}
+                <tr class="es-diff-row">
+                    <td colspan="5">
+                        <details class="es-subtable-details">
+                            <summary class="es-subtable-toggle">
+                                <span class="es-subtable-toggle__icon"></span>
+                                {{ diffCount }} {{ 'items out of sync'|t('elasticsearch') }}
+                            </summary>
+                            <div class="es-subtable-wrapper">
+                                <h2 class="es-subtable-heading">{{ 'Out of sync items'|t('elasticsearch') }}</h2>
+                                <table class="data fullwidth es-subtable">
+                                    <thead>
+                                        <tr>
+                                            <th class="es-subtable-col--craft">{{ 'Craft'|t('elasticsearch') }}</th>
+                                            <th class="es-subtable-col--elastic">{{ 'Elastic'|t('elasticsearch') }}</th>
+                                            <th class="es-subtable-col--status thin nowrap">{{ 'Status'|t('elasticsearch') }}</th>
+                                        </tr>
+                                    </thead>
+                                    {% set linkedIds = craftOnlyIds|merge(elasticExpiredIds) %}
+                                    {% set entriesById = {} %}
+                                    {% if linkedIds|length %}
+                                        {% for entry in craft.entries.id(linkedIds).site(index.site).status(null).all() %}
+                                            {% set entriesById = entriesById|merge({(entry.id): entry}) %}
+                                        {% endfor %}
+                                    {% endif %}
+
+                                    <tbody>
+                                        {% for id in craftOnlyIds %}
+                                            {% set entry = entriesById[id] ?? null %}
+                                            <tr>
+                                                <td>
+                                                    {% if entry %}<a href="{{ entry.cpEditUrl }}" target="_blank" class="go">{{ id }}</a>{% else %}{{ id }}{% endif %}
+                                                </td>
+                                                <td class="light">—</td>
+                                                <td class="nowrap">
+                                                    <span class="status pending"></span>{{ 'Missing from index'|t('elasticsearch') }}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        {% for id in elasticExpiredIds %}
+                                            {% set entry = entriesById[id] ?? null %}
+                                            <tr>
+                                                <td>
+                                                    {% if entry %}<a href="{{ entry.cpEditUrl }}" target="_blank" class="go">{{ id }}</a>{% else %}{{ id }}{% endif %}
+                                                </td>
+                                                <td>{{ id }}</td>
+                                                <td class="nowrap es-status-expired">
+                                                    <span class="status es-status-dot--expired"></span>{{ 'Expired'|t('elasticsearch') }}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                        {% for id in elasticOnlyIds %}
+                                            <tr>
+                                                <td class="light">—</td>
+                                                <td>{{ id }}</td>
+                                                <td class="nowrap">
+                                                    <span class="status off"></span>{{ 'Orphaned in index'|t('elasticsearch') }}
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </details>
+                    </td>
+                </tr>
+            {% endif %}
+
         {% endfor %}
     </tbody>
 </table>

@@ -62,6 +62,12 @@ return [
      * 
      * Manage indexing and linked indexes.
      * At least sections or entryTypes must be set.
+     * 
+     * Available settings per index:
+     *   sections   - Limit to specific section handles (optional)
+     *   entryTypes - Limit to specific entry type handles (optional)
+     *   statuses   - Limit to specific entry statuses (optional, defaults to ['live', 'pending'])
+     *   fields     - Limit which fields are indexed, supports wildcards and nested relations (optional, defaults to all fields)
      */
     'indexes' => [
         [
@@ -71,6 +77,7 @@ return [
             'settings' => [
                 'sections'   => ['section-handle-1', 'section-handle-2'],
                 'entryTypes' => ['entry-type-handle-1', 'entry-type-handle-2'],
+                'statuses'   => ['live', 'pending'], // default, can be omitted
             ],
         ],
         [
@@ -78,8 +85,9 @@ return [
             'element'    => \craft\elements\Entry::class,
             'site'       => 'site-handle',
             'settings' => [
-                'sections'   => ['section-handle-3', 'section-handle-4'],
-                'entryTypes' => ['entry-type-handle-3', 'entry-type-handle-4'],
+                'sections'   => ['section-handle-3'],
+                'entryTypes' => ['entry-type-handle-3'],
+                'statuses'   => ['live'], // only index live entries for this index
             ],
         ],
     ],
@@ -94,8 +102,8 @@ You can easily add support for custom Craft Fields, or even entirely new Element
 
 By default, this plugin indexes Craft `Entry` elements. To add support for another Element Type (e.g., `craft\elements\Category`), you need to register four components via Yii2 events:
 
-1. **Criteria:** Tells the settings model how to match the element to an index.
-2. **Filter:** Tells the element queries how to filter elements for this index.
+1. **Criteria:** Tells the settings model how to match the element to an index (e.g. by section or entry type).
+2. **Filter:** Tells the element queries how to filter elements for this index, and whether a given element should be indexed or deleted. Implement `apply()` to restrict queries, and `shouldIndex()` to gate indexing per element + index (e.g. based on configurable statuses).
 3. **Schema:** Defines the Elasticsearch property mappings for the element.
 4. **Mapper:** Formats the element's data before sending it to Elasticsearch.
 

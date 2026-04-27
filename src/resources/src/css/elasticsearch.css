@@ -1,25 +1,146 @@
-.es-pill {
-    background-color: transparent;
+/* ── Index name cell ──────────────────────────────────────────────── */
+
+.es-index-name {
+    font-size: 13px;
+    font-family: var(--font-mono, monospace);
+    background: none;
+    padding: 0;
+    color: var(--text-color);
+}
+
+.es-index-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+    margin-top: 2px;
+    font-family: var(--font-sans, sans-serif);
+    color: var(--light-text-color);
+}
+
+.es-diff-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 1px 7px;
     border-radius: 9999px;
-    padding: 5px 12px;
+    font-size: 10px;
+    font-weight: 600;
+    background: var(--bg-warning, #fff8e6);
+    color: var(--fg-warning, #a07000);
+    border: 1px solid var(--border-warning, #f0d080);
+    letter-spacing: 0.01em;
 }
 
-.es-pill.es-pill-info {
-    background-color: rgb(239, 250, 253);
-    color: rgb(63, 117, 161);
+
+/* ── Diff subrow ──────────────────────────────────────────────────── */
+
+.es-diff-row > td {
+    padding: 0 !important;
+    border-top: none !important;
 }
 
-.es-pill.es-pill-success {
-    background-color: rgb(240, 250, 242);
-    color: rgb(56, 105, 83);
+
+/* ── Collapsible toggle ───────────────────────────────────────────── */
+
+.es-subtable-details {
+    border-top: 1px solid var(--border-hairline);
 }
 
-.es-pill.es-pill-warning {
-    background-color: rgb(255, 249, 234);
-    color: rgb(187, 142, 40);
+.es-subtable-toggle {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--medium-text-color, #596673);
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    background: var(--secondary-pane-bg, #f8f8f8);
 }
 
-.es-pill.es-pill-error {
-    background-color: rgb(253, 242, 244);
-    color: rgb(204, 27, 57);
+.es-subtable-toggle::-webkit-details-marker {
+    display: none;
+}
+
+.es-subtable-toggle:hover {
+    color: var(--text-color);
+    background: var(--hover-bg-color, #f0f0f0);
+}
+
+.es-subtable-toggle__icon {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: rotate(-45deg);
+    transition: transform 0.15s ease;
+    flex-shrink: 0;
+    margin-top: -2px;
+}
+
+.es-subtable-details[open] .es-subtable-toggle__icon {
+    transform: rotate(45deg);
+    margin-top: 0;
+    margin-bottom: -2px;
+}
+
+
+/* ── Nested subtable ──────────────────────────────────────────────── */
+
+.es-subtable-wrapper {
+    padding: 12px 16px 16px 24px;
+    border-left: 3px solid var(--border-hairline-medium, #d9d9d9);
+    margin: 8px 14px 12px 14px;
+}
+
+.es-subtable-heading {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--light-text-color);
+    margin: 0 0 8px 0;
+}
+
+.es-subtable {
+    border: 1px solid var(--border-hairline) !important;
+    border-radius: var(--border-radius, 4px);
+    overflow: hidden;
+}
+
+.es-subtable thead th {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--light-text-color);
+    background: var(--secondary-pane-bg, #f8f8f8);
+    padding: 6px 10px !important;
+}
+
+.es-subtable tbody td {
+    font-size: 12px;
+    padding: 6px 10px !important;
+    font-family: var(--font-mono, monospace);
+}
+
+.es-subtable-col--status {
+    font-family: var(--font-sans, sans-serif) !important;
+}
+
+.es-subtable tbody tr:last-child td {
+    border-bottom: none;
+}
+
+
+/* ── Expired status dot ───────────────────────────────────────────── */
+
+.es-status-dot--expired {
+    background: var(--blue-400, #4aa8e0) !important;
+}
+
+.es-status-expired {
+    color: var(--blue-600, #2475a8);
 }

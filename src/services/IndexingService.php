@@ -6,6 +6,7 @@ use craft\base\Element;
 use craft\helpers\ElementHelper;
 use craft\helpers\Queue;
 use GlueAgency\Elasticsearch\Elasticsearch;
+use GlueAgency\Elasticsearch\factories\ElementQueryFilterFactory;
 use GlueAgency\Elasticsearch\queue\jobs\entry\DeleteEntryJob;
 use GlueAgency\Elasticsearch\queue\jobs\entry\IndexEntryJob;
 use yii\base\Component;
@@ -27,20 +28,23 @@ class IndexingService extends Component
             return;
         }
 
-        if($element->getStatus() === Element::STATUS_DISABLED) {
-            $this->delete($element);
-
-            return;
-        }
-
         $indexes = Elasticsearch::getInstance()->settings->getIndexesForElement($element);
 
         if($indexes->isNotEmpty()) {
+            $filterFactory = new ElementQueryFilterFactory;
+
             foreach($indexes as $index) {
-                Queue::push(new IndexEntryJob([
-                    'indexName' => $index->name,
-                    'entryId'   => $element->id,
-                ]));
+                if($filterFactory->shouldIndex($element, $index)) {
+                    Queue::push(new IndexEntryJob([
+                        'indexName' => $index->name,
+                        'entryId'   => $element->id,
+                    ]));
+                } else {
+                    Queue::push(new DeleteEntryJob([
+                        'indexName' => $index->name,
+                        'entryId'   => $element->id,
+                    ]));
+                }
             }
         }
     }

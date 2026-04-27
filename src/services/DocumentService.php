@@ -95,13 +95,55 @@ class DocumentService extends Component
         return new BulkIndexResponse($response->asArray());
     }
 
+    public function allIds(Index $index): array
+    {
+        $ids = [];
+        $size = 1000;
+        $searchAfter = null;
+
+        do {
+            $params = [
+                'index' => $index->name,
+                'body'  => [
+                    '_source' => false,
+                    'size'    => $size,
+                    'sort'    => [['_doc' => 'asc']],
+                    'query'   => ['match_all' => new \stdClass()],
+                ],
+            ];
+
+            if ($searchAfter !== null) {
+                $params['body']['search_after'] = $searchAfter;
+            }
+
+            $data = $this->client->search($params)->asArray();
+            $hits = $data['hits']['hits'] ?? [];
+
+            foreach ($hits as $hit) {
+                $ids[] = (int) $hit['_id'];
+            }
+
+            $searchAfter = !empty($hits) ? end($hits)['sort'] : null;
+        } while (count($hits) === $size);
+
+        return $ids;
+    }
+
     public function deleteById(Index $index, int $id): bool
     {
-        return $this->client->delete([
-                'index' => $index->name,
-                'id' => $id,
-            ])
-            ->asBool();
+        try {
+            return $this->client->delete([
+                    'index' => $index->name,
+                    'id'    => $id,
+                ])
+                ->asBool();
+        } catch (ClientResponseException $e) {
+            if ($e->getResponse()->getStatusCode() === 404) {
+                return true;
+            }
+
+            throw $e;
+        }
     }
 
     public function delete(Index $index, Entry $entry): bool
