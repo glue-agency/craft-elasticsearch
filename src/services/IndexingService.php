@@ -20,7 +20,7 @@ class IndexingService extends Component
             return;
         }
 
-        if($element->propagating) {
+        if($element->propagating && !$element->firstSave) {
             return;
         }
 

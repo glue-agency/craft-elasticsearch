@@ -1,5 +1,15 @@
 # Release Notes for ElasticSearch
 
+## 5.0.0-beta.5
+
+### Fixed
+- Fixed an issue where new elements being saved for the first time would not be indexed in propagated sites' Elasticsearch indexes.
+
+## 5.0.0-beta.4
+
+### Added
+- Moved Entry status filtering to the index config, allowing per-index control over which statuses are included.
+
 ## 5.0.0-beta.3
 
 ### Fixed
